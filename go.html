@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Đang chuyển hướng...</title>
+  <title>Nội dung 18+</title>
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet"/>
   <style>
     :root {
@@ -59,67 +59,39 @@
       -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
     }
     .sub { color: var(--muted); font-size: 0.88rem; line-height: 1.6; margin-bottom: 32px; }
-    .btn-shopee {
+    .btn-dest {
       display: flex; align-items: center; justify-content: center; gap: 10px;
       background: linear-gradient(135deg, var(--accent), var(--accent2));
       color: #fff; text-decoration: none;
-      padding: 16px; border-radius: 14px; width: 100%;
-      font-family: 'Syne', sans-serif; font-size: 1.05rem; font-weight: 800;
+      padding: 18px; border-radius: 14px; width: 100%;
+      font-family: 'Syne', sans-serif; font-size: 1.1rem; font-weight: 800;
       box-shadow: 0 8px 24px rgba(238,77,45,0.4);
-      transition: transform 0.2s, box-shadow 0.2s; margin-bottom: 14px;
+      transition: transform 0.2s;
+      animation: glow 1.5s ease-in-out infinite alternate;
     }
-    .btn-shopee:hover { transform: translateY(-2px); }
-    .divider {
-      display: flex; align-items: center; gap: 12px;
-      margin: 6px 0; color: var(--muted); font-size: 0.78rem;
+    @keyframes glow {
+      from { box-shadow: 0 8px 24px rgba(238,77,45,0.4); }
+      to   { box-shadow: 0 8px 40px rgba(238,77,45,0.7); }
     }
-    .divider::before, .divider::after {
-      content: ''; flex: 1; height: 1px; background: var(--border);
-    }
-    .btn-dest {
-      display: flex; align-items: center; justify-content: center; gap: 10px;
-      background: rgba(255,255,255,0.05); border: 1px solid var(--border);
-      color: var(--text); text-decoration: none;
-      padding: 14px; border-radius: 14px; width: 100%;
-      font-family: 'DM Sans', sans-serif; font-size: 0.95rem; font-weight: 500;
-      transition: background 0.2s;
-    }
-    .btn-dest:hover { background: rgba(255,255,255,0.08); }
-    .error {
-      color: var(--muted); text-align: center; padding: 20px;
-    }
+    .btn-dest:hover { transform: translateY(-2px); }
   </style>
 </head>
 <body>
-<div class="card" id="card">
+<div class="card">
   <div class="logo">🔞</div>
   <h1>Nội dung <span>18+</span><br/>dành cho bạn!</h1>
-  <p class="sub" id="subText">Bấm vào Shopee để xem ưu đãi.<br/>Xem xong quay lại bấm vào trang chính.</p>
-  <a class="btn-shopee" id="btnShopee" href="#">🛍️ Mở Shopee ngay</a>
-  <div class="divider">sau khi xem xong</div>
+  <p class="sub">Cảm ơn đã xem Shopee! 🛒<br/>Bấm nút bên dưới để xem clip nhé.</p>
   <a class="btn-dest" id="btnDest" href="#">🔞 Bấm để xem clip</a>
 </div>
 
 <script>
-  // Đọc id từ URL: go.html?id=abc123
   const params = new URLSearchParams(window.location.search);
-  const id = params.get('id');
+  const dest = params.get('d');
 
-  if (id) {
-    // Lấy danh sách link từ localStorage (cùng domain)
-    const links = JSON.parse(localStorage.getItem('links') || '[]');
-    const link = links.find(l => l.id === id);
-    if (link) {
-      document.getElementById('btnShopee').href = link.shopee;
-      document.getElementById('btnDest').href = link.dest;
-    } else {
-      document.getElementById('subText').textContent = 'Link không tồn tại hoặc đã bị xóa.';
-      document.getElementById('btnShopee').style.display = 'none';
-      document.getElementById('btnDest').style.display = 'none';
-    }
+  if (dest) {
+    document.getElementById('btnDest').href = decodeURIComponent(dest);
   } else {
-    document.getElementById('subText').textContent = 'Link không hợp lệ.';
-    document.getElementById('btnShopee').style.display = 'none';
+    document.querySelector('.sub').textContent = 'Link không hợp lệ.';
     document.getElementById('btnDest').style.display = 'none';
   }
 </script>
