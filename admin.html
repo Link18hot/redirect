@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Quản lý Link</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg: #0a0a0a; --surface: #141414; --surface2: #1e1e1e;
+      --border: #2a2a2a; --accent: #ee4d2d; --accent2: #ff7337;
+      --text: #f0f0f0; --muted: #666; --green: #22c55e; --red: #ef4444;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg); color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      min-height: 100vh; padding: 24px 16px;
+    }
+    body::before {
+      content: ''; position: fixed; inset: 0;
+      background: radial-gradient(ellipse 50% 30% at 80% 10%, rgba(238,77,45,0.08) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .header {
+      display: flex; align-items: center; gap: 14px;
+      margin-bottom: 28px;
+    }
+    .header-logo {
+      width: 44px; height: 44px; border-radius: 12px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; flex-shrink: 0;
+      box-shadow: 0 4px 16px rgba(238,77,45,0.3);
+    }
+    .header h1 {
+      font-family: 'Syne', sans-serif; font-size: 1.3rem; font-weight: 800;
+    }
+    .header p { color: var(--muted); font-size: 0.8rem; margin-top: 2px; }
+
+    /* Stats */
+    .stats {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 12px; margin-bottom: 24px;
+    }
+    .stat {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 14px; padding: 16px;
+    }
+    .stat-num {
+      font-family: 'Syne', sans-serif; font-size: 1.8rem; font-weight: 800;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .stat-label { color: var(--muted); font-size: 0.75rem; margin-top: 2px; }
+
+    /* Form thêm link */
+    .add-form {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 16px; padding: 20px; margin-bottom: 24px;
+    }
+    .add-form h2 {
+      font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 700;
+      margin-bottom: 16px; display: flex; align-items: center; gap: 8px;
+    }
+    .form-group { margin-bottom: 12px; }
+    .form-group label {
+      display: block; font-size: 0.78rem; color: var(--muted);
+      margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.05em;
+    }
+    .form-group input {
+      width: 100%; background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 10px; padding: 12px 14px; color: var(--text);
+      font-family: 'DM Sans', sans-serif; font-size: 0.88rem;
+      outline: none; transition: border 0.2s;
+    }
+    .form-group input:focus { border-color: var(--accent); }
+    .form-group input::placeholder { color: var(--muted); }
+    .btn-add {
+      width: 100%; background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #fff; border: none; padding: 14px; border-radius: 12px;
+      font-family: 'Syne', sans-serif; font-size: 0.95rem; font-weight: 700;
+      cursor: pointer; margin-top: 4px;
+      box-shadow: 0 4px 16px rgba(238,77,45,0.3);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .btn-add:hover { transform: translateY(-1px); }
+
+    /* Danh sách link */
+    .list-header {
+      font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 700;
+      margin-bottom: 14px; display: flex; align-items: center; gap: 8px;
+    }
+    .link-item {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 14px; padding: 16px; margin-bottom: 12px;
+      animation: fadeUp 0.3s ease both;
+    }
+    @keyframes fadeUp {
+      from{opacity:0;transform:translateY(8px)}
+      to{opacity:1;transform:translateY(0)}
+    }
+    .link-name {
+      font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.95rem;
+      margin-bottom: 10px; display: flex; align-items: center;
+      justify-content: space-between;
+    }
+    .link-badge {
+      font-size: 0.65rem; background: rgba(238,77,45,0.15);
+      color: var(--accent2); padding: 3px 8px; border-radius: 20px;
+      font-family: 'DM Sans', sans-serif; font-weight: 500;
+    }
+    .link-url {
+      font-size: 0.75rem; color: var(--muted); margin-bottom: 4px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .link-url span { color: var(--accent2); margin-right: 6px; font-size: 0.7rem; }
+    .link-actions {
+      display: flex; gap: 8px; margin-top: 14px;
+    }
+    .btn-copy {
+      flex: 1; background: rgba(255,255,255,0.05); border: 1px solid var(--border);
+      color: var(--text); padding: 9px; border-radius: 10px;
+      font-size: 0.8rem; cursor: pointer; font-family: 'DM Sans', sans-serif;
+      transition: background 0.2s;
+    }
+    .btn-copy:hover { background: rgba(255,255,255,0.1); }
+    .btn-copy.copied { background: rgba(34,197,94,0.15); border-color: var(--green); color: var(--green); }
+    .btn-edit {
+      background: rgba(238,77,45,0.1); border: 1px solid rgba(238,77,45,0.2);
+      color: var(--accent2); padding: 9px 14px; border-radius: 10px;
+      font-size: 0.8rem; cursor: pointer; font-family: 'DM Sans', sans-serif;
+      transition: background 0.2s;
+    }
+    .btn-edit:hover { background: rgba(238,77,45,0.2); }
+    .btn-delete {
+      background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.2);
+      color: var(--red); padding: 9px 14px; border-radius: 10px;
+      font-size: 0.8rem; cursor: pointer; font-family: 'DM Sans', sans-serif;
+      transition: background 0.2s;
+    }
+    .btn-delete:hover { background: rgba(239,68,68,0.2); }
+
+    /* Edit mode */
+    .edit-form {
+      display: none; margin-top: 12px; padding-top: 12px;
+      border-top: 1px solid var(--border);
+    }
+    .edit-form.show { display: block; }
+    .edit-form input {
+      width: 100%; background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 10px; padding: 10px 12px; color: var(--text);
+      font-family: 'DM Sans', sans-serif; font-size: 0.85rem;
+      outline: none; margin-bottom: 8px; transition: border 0.2s;
+    }
+    .edit-form input:focus { border-color: var(--accent); }
+    .btn-save {
+      width: 100%; background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #fff; border: none; padding: 11px; border-radius: 10px;
+      font-family: 'Syne', sans-serif; font-size: 0.88rem; font-weight: 700;
+      cursor: pointer;
+    }
+
+    .empty {
+      text-align: center; padding: 40px 20px; color: var(--muted);
+    }
+    .empty-icon { font-size: 40px; margin-bottom: 12px; }
+    .empty p { font-size: 0.88rem; }
+
+    .toast {
+      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(100px);
+      background: var(--green); color: #fff; padding: 12px 24px;
+      border-radius: 12px; font-size: 0.85rem; font-weight: 500;
+      transition: transform 0.3s; z-index: 999; white-space: nowrap;
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-logo">⚡</div>
+  <div>
+    <h1>Quản lý Link</h1>
+    <p>Thêm, sửa, xóa link dễ dàng</p>
+  </div>
+</div>
+
+<div class="stats">
+  <div class="stat">
+    <div class="stat-num" id="totalLinks">0</div>
+    <div class="stat-label">Tổng số link</div>
+  </div>
+  <div class="stat">
+    <div class="stat-num" id="todayAdded">0</div>
+    <div class="stat-label">Thêm hôm nay</div>
+  </div>
+</div>
+
+<div class="add-form">
+  <h2>➕ Thêm link mới</h2>
+  <div class="form-group">
+    <label>Tên link (để dễ nhớ)</label>
+    <input type="text" id="inputName" placeholder="VD: Deal giày hôm nay"/>
+  </div>
+  <div class="form-group">
+    <label>🛒 Link Shopee Affiliate</label>
+    <input type="url" id="inputShopee" placeholder="https://shope.ee/..."/>
+  </div>
+  <div class="form-group">
+    <label>🔗 Link đích (sau khi xem Shopee)</label>
+    <input type="url" id="inputDest" placeholder="https://..."/>
+  </div>
+  <button class="btn-add" onclick="addLink()">✅ Thêm link</button>
+</div>
+
+<div class="list-header">📋 Danh sách link (<span id="listCount">0</span>)</div>
+<div id="linkList"></div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  // Lấy BASE URL của trang go.html (cùng thư mục)
+  const BASE = window.location.href.replace('admin.html', 'go.html');
+
+  let links = JSON.parse(localStorage.getItem('links') || '[]');
+  let todayKey = new Date().toDateString();
+  let todayCount = parseInt(localStorage.getItem('today_' + todayKey) || '0');
+
+  function save() {
+    localStorage.setItem('links', JSON.stringify(links));
+    render();
+  }
+
+  function addLink() {
+    const name = document.getElementById('inputName').value.trim();
+    const shopee = document.getElementById('inputShopee').value.trim();
+    const dest = document.getElementById('inputDest').value.trim();
+    if (!name || !shopee || !dest) { showToast('⚠️ Vui lòng điền đầy đủ!'); return; }
+    const id = Date.now().toString(36);
+    links.unshift({ id, name, shopee, dest, date: new Date().toLocaleDateString('vi') });
+    todayCount++;
+    localStorage.setItem('today_' + todayKey, todayCount);
+    document.getElementById('inputName').value = '';
+    document.getElementById('inputShopee').value = '';
+    document.getElementById('inputDest').value = '';
+    save();
+    showToast('✅ Đã thêm link mới!');
+  }
+
+  function deleteLink(id) {
+    if (!confirm('Xóa link này?')) return;
+    links = links.filter(l => l.id !== id);
+    save();
+    showToast('🗑️ Đã xóa!');
+  }
+
+  function toggleEdit(id) {
+    const el = document.getElementById('edit_' + id);
+    el.classList.toggle('show');
+  }
+
+  function saveEdit(id) {
+    const name = document.getElementById('ename_' + id).value.trim();
+    const shopee = document.getElementById('eshopee_' + id).value.trim();
+    const dest = document.getElementById('edest_' + id).value.trim();
+    if (!name || !shopee || !dest) { showToast('⚠️ Điền đầy đủ!'); return; }
+    const l = links.find(l => l.id === id);
+    l.name = name; l.shopee = shopee; l.dest = dest;
+    save();
+    showToast('✅ Đã lưu!');
+  }
+
+  function copyLink(id) {
+    const url = BASE + '?id=' + id;
+    navigator.clipboard.writeText(url).then(() => {
+      const btn = document.getElementById('copy_' + id);
+      btn.textContent = '✓ Đã copy!';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = '📋 Copy link'; btn.classList.remove('copied'); }, 2000);
+    });
+  }
+
+  function render() {
+    document.getElementById('totalLinks').textContent = links.length;
+    document.getElementById('todayAdded').textContent = todayCount;
+    document.getElementById('listCount').textContent = links.length;
+    const list = document.getElementById('linkList');
+    if (links.length === 0) {
+      list.innerHTML = `<div class="empty"><div class="empty-icon">🔗</div><p>Chưa có link nào.<br/>Thêm link đầu tiên ở trên nhé!</p></div>`;
+      return;
+    }
+    list.innerHTML = links.map((l, i) => `
+      <div class="link-item">
+        <div class="link-name">
+          <span>${l.name}</span>
+          <span class="link-badge">${l.date}</span>
+        </div>
+        <div class="link-url"><span>🛒</span>${l.shopee}</div>
+        <div class="link-url"><span>🔗</span>${l.dest}</div>
+        <div class="link-actions">
+          <button class="btn-copy" id="copy_${l.id}" onclick="copyLink('${l.id}')">📋 Copy link</button>
+          <button class="btn-edit" onclick="toggleEdit('${l.id}')">✏️</button>
+          <button class="btn-delete" onclick="deleteLink('${l.id}')">🗑️</button>
+        </div>
+        <div class="edit-form" id="edit_${l.id}">
+          <input id="ename_${l.id}" value="${l.name}" placeholder="Tên link"/>
+          <input id="eshopee_${l.id}" value="${l.shopee}" placeholder="Link Shopee"/>
+          <input id="edest_${l.id}" value="${l.dest}" placeholder="Link đích"/>
+          <button class="btn-save" onclick="saveEdit('${l.id}')">💾 Lưu thay đổi</button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg; t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2500);
+  }
+
+  render();
+</script>
+</body>
+</html>
