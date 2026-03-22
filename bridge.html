@@ -7,27 +7,19 @@
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      background: #0d0d0d; color: #f0f0f0; font-family: sans-serif;
+      background: #0d0d0d; color: #f0f0f0;
+      font-family: sans-serif;
       min-height: 100vh; display: flex; flex-direction: column;
       align-items: center; justify-content: center; text-align: center; padding: 24px;
     }
-    .logo { font-size: 72px; margin-bottom: 16px; animation: pulse 1s ease-in-out infinite alternate; }
+    .logo { font-size: 64px; margin-bottom: 20px; animation: pulse 1s ease-in-out infinite alternate; }
     @keyframes pulse { from{transform:scale(1)} to{transform:scale(1.08)} }
-    .text { color: #777; font-size: 0.9rem; margin-bottom: 32px; }
-    .btn {
-      display: none;
-      background: linear-gradient(135deg, #ee4d2d, #ff7337);
-      color: #fff; text-decoration: none;
-      padding: 18px 36px; border-radius: 14px;
-      font-size: 1.1rem; font-weight: 700;
-      box-shadow: 0 8px 24px rgba(238,77,45,0.4);
-    }
+    p { color: #777; font-size: 0.9rem; }
   </style>
 </head>
 <body>
   <div class="logo">🛍️</div>
-  <p class="text">Đang mở Shopee...</p>
-  <a class="btn" id="btnShopee">🛍️ Bấm để vào Shopee</a>
+  <p>Đang mở Shopee...</p>
 
 <script>
   const params = new URLSearchParams(window.location.search);
@@ -35,29 +27,15 @@
   const dest = params.get('d');
 
   if (shopee && dest) {
-    const shopeeURL = decodeURIComponent(shopee);
-    const destURL = decodeURIComponent(dest);
+    // Lưu link đích vào localStorage → go.html sẽ đọc sau
+    localStorage.setItem('pendingDest', decodeURIComponent(dest));
 
-    // Gán link cho nút dự phòng
-    document.getElementById('btnShopee').href = shopeeURL;
-
-    // Thay history = link đích → thoát Shopee về thẳng link đích
-    history.replaceState(null, '', destURL);
-
-    // Thử tự chuyển vào Shopee
+    // Chuyển vào Shopee sau 0.8 giây
     setTimeout(() => {
-      window.location.href = shopeeURL;
-    }, 300);
-
-    // Nếu sau 2 giây vẫn chưa chuyển → hiện nút dự phòng
-    setTimeout(() => {
-      document.getElementById('btnShopee').style.display = 'inline-block';
-      document.querySelector('.text').textContent = 'Bấm nút bên dưới để vào Shopee!';
-      document.querySelector('.logo').style.animation = 'none';
-    }, 2000);
-
+      window.location.href = decodeURIComponent(shopee);
+    }, 800);
   } else {
-    document.querySelector('.text').textContent = 'Link không hợp lệ.';
+    document.querySelector('p').textContent = 'Link không hợp lệ.';
   }
 </script>
 </body>
