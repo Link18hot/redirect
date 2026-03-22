@@ -8,13 +8,12 @@
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       background: #0d0d0d; color: #f0f0f0;
-      font-family: 'DM Sans', sans-serif;
+      font-family: sans-serif;
       min-height: 100vh; display: flex; flex-direction: column;
-      align-items: center; justify-content: center; text-align: center;
-      padding: 24px;
+      align-items: center; justify-content: center; text-align: center; padding: 24px;
     }
     .logo { font-size: 64px; margin-bottom: 20px; animation: pulse 1s ease-in-out infinite alternate; }
-    @keyframes pulse { from{transform:scale(1)} to{transform:scale(1.1)} }
+    @keyframes pulse { from{transform:scale(1)} to{transform:scale(1.08)} }
     p { color: #777; font-size: 0.9rem; }
   </style>
 </head>
@@ -28,11 +27,17 @@
   const dest = params.get('d');
 
   if (shopee && dest) {
-    // Lưu link đích vào sessionStorage để go.html dùng
-    sessionStorage.setItem('dest', dest);
-    // Chuyển thẳng vào Shopee trên cùng tab → tính lượt affiliate
+    // Bước 1: Đẩy trang go.html vào lịch sử trước
+    // Khi khách bấm Back từ Shopee → sẽ về go.html với link đích
+    const goURL = window.location.href.replace('bridge.html', 'go.html') + '?d=' + encodeURIComponent(dest);
+    
+    // Thay thế trang hiện tại bằng go.html trong history
+    history.replaceState(null, '', goURL);
+    
+    // Bước 2: Đẩy Shopee vào history → khách đang ở Shopee
+    // Bấm Back → về go.html
     setTimeout(() => {
-      window.location.replace(decodeURIComponent(shopee));
+      window.location.assign(decodeURIComponent(shopee));
     }, 800);
   } else {
     document.querySelector('p').textContent = 'Link không hợp lệ.';
