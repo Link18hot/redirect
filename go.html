@@ -85,11 +85,16 @@
 </div>
 
 <script>
+  // Đọc link đích từ URL trước, nếu không có thì đọc từ localStorage
   const params = new URLSearchParams(window.location.search);
-  const dest = params.get('d');
+  const destFromURL = params.get('d');
+  const destFromStorage = localStorage.getItem('pendingDest');
+  const dest = destFromURL ? decodeURIComponent(destFromURL) : destFromStorage;
 
   if (dest) {
-    document.getElementById('btnDest').href = decodeURIComponent(dest);
+    document.getElementById('btnDest').href = dest;
+    // Xóa khỏi localStorage sau khi dùng
+    localStorage.removeItem('pendingDest');
   } else {
     document.querySelector('.sub').textContent = 'Link không hợp lệ.';
     document.getElementById('btnDest').style.display = 'none';

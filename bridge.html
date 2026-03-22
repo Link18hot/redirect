@@ -27,17 +27,12 @@
   const dest = params.get('d');
 
   if (shopee && dest) {
-    // Bước 1: Đẩy trang go.html vào lịch sử trước
-    // Khi khách bấm Back từ Shopee → sẽ về go.html với link đích
-    const goURL = window.location.href.replace('bridge.html', 'go.html') + '?d=' + encodeURIComponent(dest);
-    
-    // Thay thế trang hiện tại bằng go.html trong history
-    history.replaceState(null, '', goURL);
-    
-    // Bước 2: Đẩy Shopee vào history → khách đang ở Shopee
-    // Bấm Back → về go.html
+    // Lưu link đích vào localStorage → go.html sẽ đọc sau
+    localStorage.setItem('pendingDest', decodeURIComponent(dest));
+
+    // Chuyển vào Shopee sau 0.8 giây
     setTimeout(() => {
-      window.location.assign(decodeURIComponent(shopee));
+      window.location.href = decodeURIComponent(shopee);
     }, 800);
   } else {
     document.querySelector('p').textContent = 'Link không hợp lệ.';
