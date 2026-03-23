@@ -24,20 +24,23 @@
     .form-group label { display: block; font-size: 0.78rem; color: var(--muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.05em; }
     .form-group input { width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 0.88rem; outline: none; transition: border 0.2s; }
     .form-group input:focus { border-color: var(--accent); }
+    .form-group input.invalid { border-color: var(--red); }
     .form-group input::placeholder { color: var(--muted); }
-    .btn-add { width: 100%; background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #fff; border: none; padding: 14px; border-radius: 12px; font-family: 'Syne', sans-serif; font-size: 0.95rem; font-weight: 700; cursor: pointer; margin-top: 4px; box-shadow: 0 4px 16px rgba(238,77,45,0.3); }
+    .btn-add { width: 100%; background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #fff; border: none; padding: 14px; border-radius: 12px; font-family: 'Syne', sans-serif; font-size: 0.95rem; font-weight: 700; cursor: pointer; margin-top: 4px; box-shadow: 0 4px 16px rgba(238,77,45,0.3); transition: opacity 0.2s; }
+    .btn-add:active { opacity: 0.85; }
     .list-header { font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 700; margin-bottom: 14px; }
     .link-item { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 16px; margin-bottom: 12px; }
     .link-name { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.95rem; margin-bottom: 10px; }
     .link-url { font-size: 0.75rem; color: var(--muted); margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .link-url span { color: var(--accent2); margin-right: 6px; }
     .link-actions { display: flex; gap: 8px; margin-top: 14px; }
-    .btn-copy { flex: 1; background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text); padding: 10px; border-radius: 10px; font-size: 0.82rem; cursor: pointer; font-family: 'DM Sans', sans-serif; }
+    .btn-copy { flex: 1; background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text); padding: 10px; border-radius: 10px; font-size: 0.82rem; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.2s; }
     .btn-copy.copied { background: rgba(34,197,94,0.15); border-color: var(--green); color: var(--green); }
     .btn-delete { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.2); color: var(--red); padding: 10px 16px; border-radius: 10px; font-size: 0.82rem; cursor: pointer; font-family: 'DM Sans', sans-serif; }
     .empty { text-align: center; padding: 40px 20px; color: var(--muted); }
     .empty-icon { font-size: 40px; margin-bottom: 12px; }
     .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--green); color: #fff; padding: 12px 24px; border-radius: 12px; font-size: 0.85rem; font-weight: 500; transition: transform 0.3s; z-index: 999; white-space: nowrap; }
+    .toast.error { background: var(--red); }
     .toast.show { transform: translateX(-50%) translateY(0); }
   </style>
 </head>
@@ -72,14 +75,52 @@
 <div class="toast" id="toast"></div>
 
 <script>
-  const BASE = window.location.href.replace('admin.html', 'bridge-5.html');
+  // ✅ FIX 1: BASE URL an toàn, không bị ảnh hưởng bởi query string / hash
+  const BASE = window.location.href.split('admin.html')[0] + 'bridge.html';
+
   let links = JSON.parse(localStorage.getItem('mylinks') || '[]');
 
+  // ✅ FIX 2: Hàm escape chống XSS
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  // ✅ FIX 3: Validate URL thực sự
+  function isValidUrl(s) {
+    try {
+      const u = new URL(s);
+      return u.protocol === 'http:' || u.protocol === 'https:';
+    } catch { return false; }
+  }
+
   function addLink() {
-    const name = document.getElementById('inputName').value.trim();
+    const name   = document.getElementById('inputName').value.trim();
     const shopee = document.getElementById('inputShopee').value.trim();
-    const dest = document.getElementById('inputDest').value.trim();
-    if (!name || !shopee || !dest) { showToast('⚠️ Điền đầy đủ 3 ô!'); return; }
+    const dest   = document.getElementById('inputDest').value.trim();
+
+    // Reset trạng thái invalid
+    ['inputName','inputShopee','inputDest'].forEach(id =>
+      document.getElementById(id).classList.remove('invalid')
+    );
+
+    if (!name) {
+      document.getElementById('inputName').classList.add('invalid');
+      showToast('⚠️ Nhập tên link!', true); return;
+    }
+    if (!isValidUrl(shopee)) {
+      document.getElementById('inputShopee').classList.add('invalid');
+      showToast('⚠️ Link Shopee không hợp lệ!', true); return;
+    }
+    if (!isValidUrl(dest)) {
+      document.getElementById('inputDest').classList.add('invalid');
+      showToast('⚠️ Link đích không hợp lệ!', true); return;
+    }
+
     links.unshift({ name, shopee, dest, date: new Date().toLocaleDateString('vi') });
     localStorage.setItem('mylinks', JSON.stringify(links));
     document.getElementById('inputName').value = '';
@@ -105,6 +146,8 @@
       btn.textContent = '✓ Đã copy!';
       btn.classList.add('copied');
       setTimeout(() => { btn.textContent = '📋 Copy link'; btn.classList.remove('copied'); }, 2500);
+    }).catch(() => {
+      showToast('❌ Không thể copy, thử lại!', true);
     });
   }
 
@@ -115,11 +158,12 @@
       list.innerHTML = `<div class="empty"><div class="empty-icon">🔗</div><p>Chưa có link nào.<br/>Thêm link đầu tiên ở trên!</p></div>`;
       return;
     }
+    // ✅ FIX 2 áp dụng: dùng esc() cho tất cả dữ liệu người dùng nhập
     list.innerHTML = links.map((l, i) => `
       <div class="link-item">
-        <div class="link-name">${l.name} <span style="color:var(--muted);font-size:0.75rem;font-weight:400">${l.date}</span></div>
-        <div class="link-url"><span>🛒</span>${l.shopee}</div>
-        <div class="link-url"><span>🔞</span>${l.dest}</div>
+        <div class="link-name">${esc(l.name)} <span style="color:var(--muted);font-size:0.75rem;font-weight:400">${esc(l.date)}</span></div>
+        <div class="link-url"><span>🛒</span>${esc(l.shopee)}</div>
+        <div class="link-url"><span>🔞</span>${esc(l.dest)}</div>
         <div class="link-actions">
           <button class="btn-copy" id="btn_${i}" onclick="copyLink(${i},'btn_${i}')">📋 Copy link</button>
           <button class="btn-delete" onclick="deleteLink(${i})">🗑️</button>
@@ -128,9 +172,11 @@
     `).join('');
   }
 
-  function showToast(msg) {
+  function showToast(msg, isError = false) {
     const t = document.getElementById('toast');
-    t.textContent = msg; t.classList.add('show');
+    t.textContent = msg;
+    t.classList.toggle('error', isError);
+    t.classList.add('show');
     setTimeout(() => t.classList.remove('show'), 2500);
   }
 
