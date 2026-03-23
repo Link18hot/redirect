@@ -37,10 +37,11 @@
   const dest   = params.get('d');
 
   if (!shopee || !dest) {
-    document.getElementById('btnDest').textContent = '⚠️ Link không hợp lệ';
-    document.getElementById('btnDest').style.display = 'block';
-    document.getElementById('btnDest').style.background = '#333';
-    document.getElementById('btnDest').removeAttribute('href');
+    const btn = document.getElementById('btnDest');
+    btn.textContent = '⚠️ Link không hợp lệ';
+    btn.style.display = 'block';
+    btn.style.background = '#333';
+    btn.removeAttribute('href');
   } else {
     const btn     = document.getElementById('btnDest');
     const flagKey = 'visited_' + btoa(encodeURIComponent(shopee).slice(0, 12));
@@ -49,9 +50,14 @@
     btn.style.display = 'block';
 
     if (!sessionStorage.getItem(flagKey)) {
-      // Lần đầu — set flag rồi chuyển sang Shopee
       sessionStorage.setItem(flagKey, '1');
-      setTimeout(() => { window.location.href = shopee; }, 300);
+
+      setTimeout(() => {
+        // FIX TWITTER: dùng window.open thay vì location.href
+        // location.href sẽ REPLACE trang bridge trong history → mất khi back
+        // window.open mở Shopee trong tab/intent mới → trang bridge vẫn còn
+        window.open(shopee, '_blank');
+      }, 300);
     }
   }
 </script>
