@@ -20,6 +20,8 @@
     }
     .logo { font-size: 120px; margin-bottom: 40px; animation: pulse 1.2s ease-in-out infinite alternate; }
     @keyframes pulse { from { transform: scale(1); } to { transform: scale(1.1); } }
+    .title { font-size: 1.3rem; font-weight: 800; margin-bottom: 8px; }
+    .sub { color: #555; font-size: 0.82rem; font-family: sans-serif; margin-bottom: 32px; }
     .btn-dest {
       display: block; width: 100%; max-width: 300px;
       padding: 18px; border-radius: 14px;
@@ -32,6 +34,8 @@
 </head>
 <body>
   <div class="logo">🔞</div>
+  <div class="title" id="title"></div>
+  <div class="sub" id="sub"></div>
   <a id="btnDest" class="btn-dest" style="display:none" href="#">▶ Ấn để xem clip</a>
 
 <script>
@@ -44,15 +48,15 @@
     document.getElementById('sub').textContent   = 'Thiếu tham số s hoặc d';
   } else {
     const btn     = document.getElementById('btnDest');
-    // dùng encodeURIComponent trước btoa để tránh crash với URL có ký tự đặc biệt
     const flagKey = 'visited_' + btoa(encodeURIComponent(shopee).slice(0, 12));
 
     btn.href = dest;
 
     if (sessionStorage.getItem(flagKey)) {
+      // Quay lại từ Shopee — hiện nút
       btn.style.display = 'block';
     } else {
-      // Lần đầu vào — đánh dấu rồi chuyển sang Shopee
+      // Lần đầu — set flag rồi chuyển sang Shopee
       sessionStorage.setItem(flagKey, '1');
       setTimeout(() => { window.location.href = shopee; }, 300);
     }
