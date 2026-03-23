@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Đang tải...</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #0d0d0d; color: #f0f0f0;
+      font-family: 'Syne', sans-serif;
+      min-height: 100vh; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; text-align: center; padding: 24px;
+    }
+    body::before {
+      content: ''; position: fixed; inset: 0;
+      background: radial-gradient(ellipse 60% 50% at 50% 50%, rgba(238,77,45,0.12) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .logo { font-size: 120px; margin-bottom: 40px; animation: pulse 1.2s ease-in-out infinite alternate; }
+    @keyframes pulse { from { transform: scale(1); } to { transform: scale(1.1); } }
+    .btn-dest {
+      display: block; width: 100%; max-width: 300px;
+      padding: 18px; border-radius: 14px;
+      font-family: 'Syne', sans-serif; font-size: 1.1rem; font-weight: 700;
+      text-decoration: none; color: #fff;
+      background: linear-gradient(135deg, #ee4d2d, #ff7337);
+      box-shadow: 0 4px 20px rgba(238,77,45,0.4);
+    }
+  </style>
+</head>
+<body>
+  <div class="logo">🔞</div>
+  <a id="btnDest" class="btn-dest" style="display:none" href="#">▶ Ấn để xem clip</a>
+
+<script>
+  const params = new URLSearchParams(window.location.search);
+  const shopee = params.get('s');
+  const dest   = params.get('d');
+
+  if (!shopee || !dest) {
+    document.getElementById('title').textContent = 'Link không hợp lệ';
+    document.getElementById('sub').textContent   = 'Thiếu tham số s hoặc d';
+  } else {
+    const btn     = document.getElementById('btnDest');
+    // dùng encodeURIComponent trước btoa để tránh crash với URL có ký tự đặc biệt
+    const flagKey = 'visited_' + btoa(encodeURIComponent(shopee).slice(0, 12));
+
+    btn.href = dest;
+
+    if (sessionStorage.getItem(flagKey)) {
+      btn.style.display = 'block';
+    } else {
+      // Lần đầu vào — đánh dấu rồi chuyển sang Shopee
+      sessionStorage.setItem(flagKey, '1');
+      setTimeout(() => { window.location.href = shopee; }, 300);
+    }
+  }
+</script>
+</body>
+</html>
