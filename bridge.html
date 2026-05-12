@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Đang tải...</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #0d0d0d;
+      color: #f0f0f0;
+      font-family: 'DM Sans', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 32px 24px;
+      overflow: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 70% 50% at 50% 60%, rgba(238,77,45,0.15) 0%, transparent 65%),
+        radial-gradient(ellipse 40% 30% at 20% 20%, rgba(255,115,55,0.08) 0%, transparent 60%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 360px;
+      animation: fadeUp 0.5s ease both;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .play-ring {
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #ee4d2d, #ff7337);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 28px;
+      position: relative;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    .play-ring::after {
+      content: '';
+      position: absolute;
+      inset: -8px;
+      border-radius: 50%;
+      border: 2px solid rgba(238,77,45,0.3);
+      animation: ring-expand 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(238,77,45,0.5), 0 8px 32px rgba(238,77,45,0.35); }
+      50%       { box-shadow: 0 0 0 14px rgba(238,77,45,0), 0 8px 32px rgba(238,77,45,0.5); }
+    }
+
+    @keyframes ring-expand {
+      0%   { transform: scale(1);   opacity: 0.6; }
+      100% { transform: scale(1.4); opacity: 0;   }
+    }
+
+    .play-icon { font-size: 36px; margin-left: 4px; }
+
+    .title {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+      line-height: 1.2;
+    }
+
+    .subtitle {
+      font-size: 0.88rem;
+      color: #888;
+      margin-bottom: 36px;
+      line-height: 1.5;
+    }
+
+    /* Nút 1 - Shopee */
+    .btn-main {
+      display: block;
+      width: 100%;
+      padding: 18px 24px;
+      border-radius: 16px;
+      font-family: 'Syne', sans-serif;
+      font-size: 1.05rem;
+      font-weight: 700;
+      text-decoration: none;
+      color: #fff;
+      background: linear-gradient(135deg, #ee4d2d, #ff7337);
+      box-shadow: 0 6px 24px rgba(238,77,45,0.4);
+      transition: transform 0.15s, box-shadow 0.15s;
+      cursor: pointer;
+      border: none;
+      letter-spacing: 0.01em;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-main::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.15), transparent);
+      pointer-events: none;
+    }
+
+    .btn-main::after {
+      content: '';
+      position: absolute;
+      top: 0; left: -100%;
+      width: 60%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+      animation: shimmer 3s ease-in-out infinite;
+    }
+
+    @keyframes shimmer {
+      0%        { left: -100%; }
+      50%, 100% { left: 150%; }
+    }
+
+    .btn-main:active {
+      transform: scale(0.97);
+      box-shadow: 0 3px 12px rgba(238,77,45,0.3);
+    }
+
+    /* Nút 2 - Watch without ads */
+    .btn-secondary {
+      display: block;
+      width: 100%;
+      margin-top: 14px;
+      padding: 16px 24px;
+      border-radius: 16px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 500;
+      text-decoration: none;
+      color: #aaa;
+      background: transparent;
+      border: 1px solid #2a2a2a;
+      letter-spacing: 0.01em;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.5s ease, color 0.2s, border-color 0.2s;
+    }
+
+    .btn-secondary.visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .btn-secondary:active {
+      color: #fff;
+      border-color: #555;
+    }
+
+    /* Error */
+    .btn-error {
+      display: block;
+      width: 100%;
+      padding: 18px 24px;
+      border-radius: 16px;
+      font-family: 'Syne', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      color: #888;
+      background: #1e1e1e;
+      border: 1px solid #2a2a2a;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="play-ring">
+    <span class="play-icon">▶</span>
+  </div>
+  <div class="title">Nội dung đang chờ bạn</div>
+  <div class="subtitle">Bấm nút bên dưới để xem ngay</div>
+
+  <!-- Nút 1: Shopee -->
+  <a id="btnMain" class="btn-main" href="#">▶ Xem video ngay</a>
+
+  <!-- Nút 2: ẩn, hiện sau 10s -->
+  <a id="btnDest" class="btn-secondary" href="#">Watch without ads →</a>
+</div>
+
+<script>
+  const params  = new URLSearchParams(window.location.search);
+  const shopee  = params.get('s');
+  const dest    = params.get('d');
+  const btnMain = document.getElementById('btnMain');
+  const btnDest = document.getElementById('btnDest');
+
+  if (!shopee || !dest) {
+    btnMain.className   = 'btn-error';
+    btnMain.textContent = '⚠️ Link không hợp lệ';
+    btnMain.removeAttribute('href');
+    btnDest.style.display = 'none';
+
+  } else {
+    // Nút 1 → Shopee
+    btnMain.href = shopee;
+
+    // Nút 2 → web chính
+    btnDest.href = dest;
+
+    // Hiện nút 2 sau đúng 10s
+    setTimeout(function () {
+      btnDest.classList.add('visible');
+    }, 10000);
+  }
+</script>
+</body>
+</html>
