@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Đang tải...</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #0d0d0d;
+      color: #f0f0f0;
+      font-family: 'DM Sans', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 32px 24px;
+      overflow: hidden;
+    }
+
+    /* Ambient glow background */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 70% 50% at 50% 60%, rgba(238,77,45,0.15) 0%, transparent 65%),
+        radial-gradient(ellipse 40% 30% at 20% 20%, rgba(255,115,55,0.08) 0%, transparent 60%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 360px;
+    }
+
+    /* Play icon ring animation */
+    .play-ring {
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #ee4d2d, #ff7337);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 28px;
+      box-shadow: 0 0 0 0 rgba(238,77,45,0.5);
+      animation: pulse 2s ease-in-out infinite;
+      position: relative;
+    }
+
+    .play-ring::after {
+      content: '';
+      position: absolute;
+      inset: -8px;
+      border-radius: 50%;
+      border: 2px solid rgba(238,77,45,0.3);
+      animation: ring-expand 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(238,77,45,0.5), 0 8px 32px rgba(238,77,45,0.35); }
+      50% { box-shadow: 0 0 0 14px rgba(238,77,45,0), 0 8px 32px rgba(238,77,45,0.5); }
+    }
+
+    @keyframes ring-expand {
+      0% { transform: scale(1); opacity: 0.6; }
+      100% { transform: scale(1.4); opacity: 0; }
+    }
+
+    .play-icon {
+      font-size: 36px;
+      margin-left: 4px; /* optical center for play triangle */
+    }
+
+    .title {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+      line-height: 1.2;
+    }
+
+    .subtitle {
+      font-size: 0.88rem;
+      color: #888;
+      margin-bottom: 36px;
+      line-height: 1.5;
+    }
+
+    /* Main CTA button */
+    .btn-main {
+      display: block;
+      width: 100%;
+      padding: 18px 24px;
+      border-radius: 16px;
+      font-family: 'Syne', sans-serif;
+      font-size: 1.05rem;
+      font-weight: 700;
+      text-decoration: none;
+      color: #fff;
+      background: linear-gradient(135deg, #ee4d2d, #ff7337);
+      box-shadow: 0 6px 24px rgba(238,77,45,0.4);
+      transition: transform 0.15s, box-shadow 0.15s, opacity 0.15s;
+      cursor: pointer;
+      border: none;
+      letter-spacing: 0.01em;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-main::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.15), transparent);
+      pointer-events: none;
+    }
+
+    .btn-main:active {
+      transform: scale(0.97);
+      box-shadow: 0 3px 12px rgba(238,77,45,0.3);
+    }
+
+    /* Shimmer animation on button */
+    .btn-main::after {
+      content: '';
+      position: absolute;
+      top: 0; left: -100%;
+      width: 60%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+      animation: shimmer 3s ease-in-out infinite;
+    }
+
+    @keyframes shimmer {
+      0% { left: -100%; }
+      50%, 100% { left: 150%; }
+    }
+
+    /* Error state */
+    .btn-error {
+      display: block;
+      width: 100%;
+      padding: 18px 24px;
+      border-radius: 16px;
+      font-family: 'Syne', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      color: #888;
+      background: #1e1e1e;
+      border: 1px solid #2a2a2a;
+      text-align: center;
+    }
+
+
+    /* Fade in animation */
+    .container {
+      animation: fadeUp 0.5s ease both;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="play-ring">
+      <span class="play-icon">▶</span>
+    </div>
+    <div class="title">Nội dung đang chờ bạn</div>
+    <div class="subtitle">Bấm nút bên dưới để xem ngay</div>
+
+    <!-- Nút sẽ được gắn href bởi JS -->
+    <a id="btnMain" class="btn-main" href="#">▶ Xem video ngay</a>
+
+
+  </div>
+
+<script>
+  const params = new URLSearchParams(window.location.search);
+  const shopee = params.get('s');
+  const dest   = params.get('d');
+  const btn    = document.getElementById('btnMain');
+
+  // ── Kiểm tra params hợp lệ ──────────────────────────────────────────
+  if (!shopee || !dest) {
+    btn.className   = 'btn-error';
+    btn.textContent = '⚠️ Link không hợp lệ';
+    btn.removeAttribute('href');
+
+  } else {
+
+    // ── Tạo flagKey theo URL Shopee + ngày hôm nay ──────────────────
+    // Tự reset mỗi ngày → hôm sau bấm lại vẫn vào Shopee trước
+    const today   = new Date().toLocaleDateString('vi-VN');
+    const rawKey  = shopee.slice(-20) + '|' + today;
+    const flagKey = 'bf_' + btoa(unescape(encodeURIComponent(rawKey))).slice(0, 24);
+
+    let savedTicket = null;
+    try { savedTicket = localStorage.getItem(flagKey); } catch(e) {}
+
+    if (!savedTicket) {
+      // ── LẦN 1: Trỏ sang Shopee ──────────────────────────────────
+      // Dùng thẻ <a> thật → Telegram không chặn (coi là user gesture)
+      btn.href        = shopee;
+      btn.textContent = '▶ Xem video ngay';
+
+      // Ghi flag KHI khách bấm, trước khi rời trang
+      btn.addEventListener('click', function () {
+        try { localStorage.setItem(flagKey, '1'); } catch(e) {}
+      }, { once: true });
+
+    } else {
+      // ── LẦN 2+: Trỏ sang web chính ─────────────────────────────
+      btn.href        = dest;
+      btn.textContent = '▶ Xem video ngay';
+    }
+  }
+</script>
+</body>
+</html>
