@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Quản lý Link</title>
+  <style>
+    :root {
+      --bg: #0a0a0a; --surface: #141414; --surface2: #1e1e1e;
+      --border: #2a2a2a; --accent: #ee4d2d; --accent2: #ff7337;
+      --text: #f0f0f0; --muted: #666; --green: #22c55e; --red: #ef4444;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); color: var(--text); font-family: sans-serif; min-height: 100vh; padding: 24px 16px; }
+    body::before { content: ''; position: fixed; inset: 0; background: radial-gradient(ellipse 50% 30% at 80% 10%, rgba(238,77,45,0.08) 0%, transparent 70%); pointer-events: none; }
+    .header { display: flex; align-items: center; gap: 14px; margin-bottom: 28px; }
+    .header-logo { width: 44px; height: 44px; border-radius: 12px; background: linear-gradient(135deg, var(--accent), var(--accent2)); display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; box-shadow: 0 4px 16px rgba(238,77,45,0.3); }
+    .header h1 { font-size: 1.3rem; font-weight: 800; }
+    .header p { color: var(--muted); font-size: 0.8rem; margin-top: 2px; }
+
+    /* Global settings card */
+    .global-card { background: var(--surface); border: 1px solid #ee4d2d44; border-radius: 16px; padding: 20px; margin-bottom: 20px; }
+    .global-card h2 { font-size: 1rem; font-weight: 700; margin-bottom: 4px; }
+    .global-card p { font-size: 0.78rem; color: var(--muted); margin-bottom: 16px; }
+
+    .add-form { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 20px; margin-bottom: 24px; }
+    .add-form h2 { font-size: 1rem; font-weight: 700; margin-bottom: 16px; }
+    .form-group { margin-bottom: 12px; }
+    .form-group label { display: block; font-size: 0.78rem; color: var(--muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.05em; }
+    .form-group input { width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; color: var(--text); font-family: sans-serif; font-size: 0.88rem; outline: none; transition: border 0.2s; }
+    .form-group input:focus { border-color: var(--accent); }
+    .form-group input.invalid { border-color: var(--red); }
+    .form-group input::placeholder { color: var(--muted); }
+    .hint { font-size: 0.72rem; color: var(--muted); margin-top: -8px; margin-bottom: 10px; font-style: italic; }
+
+    .btn { width: 100%; border: none; padding: 14px; border-radius: 12px; font-size: 0.95rem; font-weight: 700; cursor: pointer; transition: opacity 0.2s; }
+    .btn:active { opacity: 0.85; }
+    .btn-accent { background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #fff; box-shadow: 0 4px 16px rgba(238,77,45,0.3); }
+    .btn-green { background: var(--green); color: #000; }
+
+    .list-header { font-size: 1rem; font-weight: 700; margin-bottom: 14px; }
+    .link-item { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 16px; margin-bottom: 12px; }
+    .link-name { font-weight: 700; font-size: 0.95rem; margin-bottom: 10px; }
+    .link-url { font-size: 0.75rem; color: var(--muted); margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .link-url span { color: var(--accent2); margin-right: 6px; }
+    .link-actions { display: flex; gap: 8px; margin-top: 14px; }
+    .btn-copy { flex: 1; background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text); padding: 10px; border-radius: 10px; font-size: 0.82rem; cursor: pointer; transition: all 0.2s; }
+    .btn-copy.copied { background: rgba(34,197,94,0.15); border-color: var(--green); color: var(--green); }
+    .btn-delete { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.2); color: var(--red); padding: 10px 16px; border-radius: 10px; font-size: 0.82rem; cursor: pointer; }
+    .empty { text-align: center; padding: 40px 20px; color: var(--muted); }
+    .empty-icon { font-size: 40px; margin-bottom: 12px; }
+    .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--green); color: #fff; padding: 12px 24px; border-radius: 12px; font-size: 0.85rem; font-weight: 500; transition: transform 0.3s; z-index: 999; white-space: nowrap; }
+    .toast.error { background: var(--red); }
+    .toast.show { transform: translateX(-50%) translateY(0); }
+    .saved-val { font-size: 0.72rem; color: var(--green); margin-top: -8px; margin-bottom: 10px; }
+  </style>
+</head>
+<body>
+<div class="header">
+  <div class="header-logo">⚡</div>
+  <div>
+    <h1>Quản lý Link</h1>
+    <p>Thêm, xóa link dễ dàng</p>
+  </div>
+</div>
+
+<!-- CÀI ĐẶT CHUNG -->
+<div class="global-card">
+  <h2>⚙️ Cài đặt chung</h2>
+  <p>Shopee & background dùng chung cho tất cả link. Chỉ thay khi cần.</p>
+
+  <div class="form-group">
+    <label>🌐 Link bridge.html (GitHub Pages)</label>
+    <input type="url" id="globalBridge" placeholder="https://tenban.github.io/tenrepo/bridge.html"/>
+    <div class="saved-val" id="savedBridge"></div>
+  </div>
+
+  <div class="form-group">
+    <label>🛒 Link Shopee Affiliate (mặc định)</label>
+    <input type="url" id="globalShopee" placeholder="https://shope.ee/..."/>
+    <div class="saved-val" id="savedShopee"></div>
+  </div>
+
+  <div class="form-group">
+    <label>🖼️ Link ảnh nền (catbox/pbs.twimg...)</label>
+    <input type="url" id="globalImg" placeholder="https://...jpg hoặc png"/>
+    <div class="saved-val" id="savedImg"></div>
+  </div>
+
+  <div class="form-group">
+    <label>🎬 Link video nền (catbox .mp4)</label>
+    <input type="url" id="globalVideo" placeholder="https://files.catbox.moe/....mp4"/>
+    <div class="saved-val" id="savedVideo"></div>
+  </div>
+  <div class="hint">* Nếu có cả ảnh lẫn video → video được ưu tiên</div>
+
+  <button class="btn btn-green" onclick="saveGlobal()">💾 Lưu cài đặt chung</button>
+</div>
+
+<!-- THÊM LINK -->
+<div class="add-form">
+  <h2>➕ Thêm link mới</h2>
+  <div class="form-group">
+    <label>Tên link (để dễ nhớ)</label>
+    <input type="text" id="inputName" placeholder="VD: Deal tối nay"/>
+  </div>
+  <div class="form-group">
+    <label>🔞 Link đích (X/Twitter...)</label>
+    <input type="url" id="inputDest" placeholder="https://x.com/..."/>
+  </div>
+  <div class="hint">* Link Shopee & background lấy từ cài đặt chung ở trên</div>
+  <button class="btn btn-accent" onclick="addLink()">✅ Tạo link</button>
+</div>
+
+<div class="list-header">📋 Danh sách link (<span id="listCount">0</span>)</div>
+<div id="linkList"></div>
+<div class="toast" id="toast"></div>
+
+<script>
+  const BASE = global.bridgeUrl || "";
+  let links = JSON.parse(localStorage.getItem('mylinks') || '[]');
+  let global = JSON.parse(localStorage.getItem('myglobal') || '{}');
+
+  // Load cài đặt chung
+  function loadGlobal() {
+    if (global.bridgeUrl) {
+      document.getElementById('globalBridge').value = global.bridgeUrl;
+      document.getElementById('savedBridge').textContent = '✓ Đã lưu: ' + global.bridgeUrl.slice(0,50);
+    }
+    if (global.shopee) {
+      document.getElementById('globalShopee').value = global.shopee;
+      document.getElementById('savedShopee').textContent = '✓ Đã lưu: ' + global.shopee.slice(0,40) + '...';
+    }
+    if (global.img) {
+      document.getElementById('globalImg').value = global.img;
+      document.getElementById('savedImg').textContent = '✓ Đã lưu: ' + global.img.slice(0,40) + '...';
+    }
+    if (global.video) {
+      document.getElementById('globalVideo').value = global.video;
+      document.getElementById('savedVideo').textContent = '✓ Đã lưu: ' + global.video.slice(0,40) + '...';
+    }
+  }
+
+  function saveGlobal() {
+    const bridgeUrl = document.getElementById('globalBridge').value.trim();
+    const shopee = document.getElementById('globalShopee').value.trim();
+    const img    = document.getElementById('globalImg').value.trim();
+    const video  = document.getElementById('globalVideo').value.trim();
+    global = { bridgeUrl, shopee, img, video };
+    localStorage.setItem('myglobal', JSON.stringify(global));
+    loadGlobal();
+    showToast('✅ Đã lưu cài đặt chung!');
+  }
+
+  function esc(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  }
+
+  function isValidUrl(s) {
+    try { const u = new URL(s); return u.protocol==='http:'||u.protocol==='https:'; } catch { return false; }
+  }
+
+  function addLink() {
+    const name = document.getElementById('inputName').value.trim();
+    const dest = document.getElementById('inputDest').value.trim();
+    document.getElementById('inputName').classList.remove('invalid');
+    document.getElementById('inputDest').classList.remove('invalid');
+
+    if (!name) { document.getElementById('inputName').classList.add('invalid'); showToast('⚠️ Nhập tên link!', true); return; }
+    if (!isValidUrl(dest)) { document.getElementById('inputDest').classList.add('invalid'); showToast('⚠️ Link đích không hợp lệ!', true); return; }
+    if (!global.shopee) { showToast('⚠️ Chưa lưu link Shopee ở cài đặt chung!', true); return; }
+
+    links.unshift({ name, dest, date: new Date().toLocaleDateString('vi') });
+    localStorage.setItem('mylinks', JSON.stringify(links));
+    document.getElementById('inputName').value = '';
+    document.getElementById('inputDest').value = '';
+    render();
+    showToast('✅ Đã tạo link!');
+  }
+
+  function deleteLink(i) {
+    if (!confirm('Xóa link này?')) return;
+    links.splice(i, 1);
+    localStorage.setItem('mylinks', JSON.stringify(links));
+    render();
+    showToast('🗑️ Đã xóa!');
+  }
+
+  function copyLink(i, btnId) {
+    if (!global.bridgeUrl) { showToast('⚠️ Chưa lưu link bridge.html!', true); return; }
+    const l = links[i];
+    let url = BASE + '?s=' + encodeURIComponent(global.shopee) + '&d=' + encodeURIComponent(l.dest);
+    if (global.video) url += '&v=' + encodeURIComponent(global.video);
+    else if (global.img) url += '&bg=' + encodeURIComponent(global.img);
+
+    function onSuccess() {
+      const btn = document.getElementById(btnId);
+      btn.textContent = '✓ Đã copy!';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = '📋 Copy link'; btn.classList.remove('copied'); }, 2500);
+    }
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(url).then(onSuccess).catch(fallback);
+    } else {
+      fallback();
+    }
+
+    function fallback() {
+      try {
+        const ta = document.createElement('textarea');
+        ta.value = url;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.focus();
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        onSuccess();
+      } catch(e) {
+        showToast('❌ Không thể copy!', true);
+      }
+    }
+  }
+
+  function render() {
+    document.getElementById('listCount').textContent = links.length;
+    const list = document.getElementById('linkList');
+    if (links.length === 0) {
+      list.innerHTML = `<div class="empty"><div class="empty-icon">🔗</div><p>Chưa có link nào.</p></div>`;
+      return;
+    }
+    list.innerHTML = links.map((l, i) => `
+      <div class="link-item">
+        <div class="link-name">${esc(l.name)} <span style="color:var(--muted);font-size:0.75rem;font-weight:400">${esc(l.date)}</span></div>
+        <div class="link-url"><span>🔞</span>${esc(l.dest)}</div>
+        <div class="link-actions">
+          <button class="btn-copy" id="btn_${i}" onclick="copyLink(${i},'btn_${i}')">📋 Copy link</button>
+          <button class="btn-delete" onclick="deleteLink(${i})">🗑️</button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function showToast(msg, isError=false) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.toggle('error', isError);
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2500);
+  }
+
+  loadGlobal();
+  render();
+</script>
+</body>
+</html>
